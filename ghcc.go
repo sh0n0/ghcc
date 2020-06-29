@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"os/exec"
@@ -19,6 +20,9 @@ func main() {
 	app := &cli.App{
 		Action: getCodeAndCount,
 		Usage:  "ghq get and scc, and then rm if you wish",
+		Flags: []cli.Flag{
+			&cli.BoolFlag{Name: "temporary", Aliases: []string{"t"}, Usage: "remove code after counting"},
+		},
 		Commands: []*cli.Command{
 			{
 				Name:   "ls",
@@ -31,7 +35,7 @@ func main() {
 }
 
 func getCodeAndCount(c *cli.Context) error {
-	if c.Args().Len() != 1 {
+	if c.NArg() != 1 {
 		fmt.Println("Just one argument is required")
 		return nil
 	}
@@ -55,14 +59,37 @@ func getCodeAndCount(c *cli.Context) error {
 	ghqRoot, _ := exec.Command("ghq", ghqRootArg...).Output()
 	rootPath := strings.TrimRight(string(ghqRoot), "\n")
 
-	sccArgs := rootPath + "/" + filePath
-	out, _ := exec.Command("scc", sccArgs).Output()
+	fullPath := rootPath + "/" + filePath
+	out, _ := exec.Command("scc", fullPath).Output()
 	fmt.Println(string(out))
+
+	isTemporary := c.Bool("temporary")
+	if isTemporary {
+		os.RemoveAll(fullPath)
+		fmt.Println("Finished removing " + fullPath)
+		return nil
+	}
+
+interactive_loop:
+	for {
+		stdin := bufio.NewScanner(os.Stdin)
+		fmt.Print("Remove source code? (y/n): ")
+		stdin.Scan()
+		switch stdin.Text() {
+		case "y":
+			os.RemoveAll(fullPath)
+			fmt.Println("Finished removing " + fullPath)
+			break interactive_loop
+		case "n":
+			break interactive_loop
+		default:
+			fmt.Println("Please enter y or n")
+		}
+	}
 	return nil
 }
 
 func ls(c *cli.Context) error {
-	out, _ := exec.Command("pwd").Output()
-	fmt.Println(string(out))
+	// TODO
 	return nil
 }

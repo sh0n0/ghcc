@@ -1,4 +1,4 @@
-module github.com/kwQt/gscc
+module github.com/kwQt/ghcc
 
 go 1.14
 
