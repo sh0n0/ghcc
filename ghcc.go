@@ -24,12 +24,15 @@ const (
 
 func main() {
 	app := &cli.App{
-		Action: getCodeAndCount,
-		Usage:  "ghq get and scc, and then rm if you wish",
-		Flags: []cli.Flag{
-			&cli.BoolFlag{Name: "temporary", Aliases: []string{"t"}, Usage: "remove code after counting"},
-		},
 		Commands: []*cli.Command{
+			{
+				Name:   "get",
+				Usage:  "ghq get and scc, and then rm if you wish",
+				Action: getCodeAndCount,
+				Flags: []cli.Flag{
+					&cli.BoolFlag{Name: "temporary", Aliases: []string{"t"}, Usage: "remove code after counting"},
+				},
+			},
 			{
 				Name:   "ls",
 				Usage:  "list history of scc",
