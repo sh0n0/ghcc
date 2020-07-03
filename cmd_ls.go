@@ -34,7 +34,7 @@ func ls(c *cli.Context) error {
 		return err
 	}
 
-	fmt.Println(string(history))
+	fmt.Print(string(history))
 	return nil
 }
 

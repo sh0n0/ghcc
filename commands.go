@@ -16,4 +16,9 @@ var commands = []*cli.Command{
 		Usage:  "list history of scc",
 		Action: ls,
 	},
+	{
+		Name:   "clear",
+		Usage:  "clear all history",
+		Action: clear,
+	},
 }
