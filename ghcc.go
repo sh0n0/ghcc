@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -84,16 +85,36 @@ interactive_loop:
 }
 
 func ls(c *cli.Context) error {
-	// TODO
+	file, err := os.Open(getHistoryPath())
+	if os.IsNotExist(err) {
+		fmt.Println("No history")
+		return nil
+	}
+
+	if err != nil {
+		return err
+	}
+
+	defer file.Close()
+
+	history, err := ioutil.ReadAll(file)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(string(history))
 	return nil
+}
+
+func getHistoryPath() string {
+	homePath, _ := os.UserHomeDir()
+	return filepath.Join(homePath, historyFileName)
 }
 
 // Add new result to history
 // If a history file doesn't exist, create new one
 func writeResultToHistory(result string) {
-	homePath, _ := os.UserHomeDir()
-	historyPath := filepath.Join(homePath, historyFileName)
-	file, _ := os.OpenFile(historyPath, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666)
+	file, _ := os.OpenFile(getHistoryPath(), os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666)
 	defer file.Close()
 
 	fmt.Fprintln(file, result)
