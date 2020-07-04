@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"sort"
 	"strconv"
 	"strings"
 
@@ -65,16 +64,8 @@ func getSccSummaryForHistory(fullPath string, filePath string) string {
 
 	var summary []LanguageSummary
 	json.Unmarshal(sccOutputForHistory, &summary)
-	sortLaunguageSumamary(summary)
 	mainSummary := strings.TrimPrefix(filePath, hostPrefix) + " " + summary[0].Name + " " + strconv.FormatInt(summary[0].Lines, 10)
 	return mainSummary
-}
-
-// this will be removed when the next version of scc releases
-func sortLaunguageSumamary(summary []LanguageSummary) {
-	sort.Slice(summary, func(i, j int) bool {
-		return summary[i].Lines > summary[j].Lines
-	})
 }
 
 type LanguageSummary struct {
