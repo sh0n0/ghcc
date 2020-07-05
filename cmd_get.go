@@ -2,9 +2,11 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
+	"strconv"
 	"strings"
 
 	"github.com/urfave/cli/v2"
@@ -95,4 +97,34 @@ func getGhqRoot() string {
 	ghqRoot, _ := exec.Command("ghq", ghqRootArg...).Output()
 	rootPath := strings.TrimRight(string(ghqRoot), "\n")
 	return rootPath
+}
+
+func getSccSummaryForHistory(fullPath string, filePath string) string {
+	sccArgs := []string{
+		"-f",
+		"json",
+		"-s",
+		"lines",
+		fullPath,
+	}
+
+	sccOutputForHistory, _ := exec.Command("scc", sccArgs...).Output()
+
+	var summary []LanguageSummary
+	json.Unmarshal(sccOutputForHistory, &summary)
+	mainSummary := strings.TrimPrefix(filePath, hostPrefix+"/") + " " + summary[0].Name + " " + strconv.FormatInt(summary[0].Lines, 10)
+	return mainSummary
+}
+
+type LanguageSummary struct {
+	Name               string
+	Bytes              int64
+	Lines              int64
+	Code               int64
+	Comment            int64
+	Blank              int64
+	Complexity         int64
+	Count              int64
+	WeightedComplexity float64
+	Files              interface{}
 }
