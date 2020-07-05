@@ -24,11 +24,11 @@ func getCodeAndCount(c *cli.Context) error {
 		return nil
 	}
 
-	rowFilePath := c.Args().Get(0)
+	rawFilePath := c.Args().Get(0)
 
-	execGhqGet(rowFilePath)
+	execGhqGet(rawFilePath)
 
-	filePath := trimFilePath(rowFilePath)
+	filePath := trimFilePath(rawFilePath)
 	fullPath := getGhqRoot() + "/" + filePath
 
 	showSccResult(fullPath)
@@ -72,14 +72,14 @@ func showSccResult(fullPath string) {
 	fmt.Println(string(sccOutput))
 }
 
-func trimFilePath(rowFilePath string) string {
-	rowFilePath = strings.TrimPrefix(rowFilePath, urlPrefix)
-	rowFilePath = strings.TrimSuffix(rowFilePath, gitSuffix)
+func trimFilePath(rawFilePath string) string {
+	trimmedFilePath := strings.TrimPrefix(rawFilePath, urlPrefix)
+	trimmedFilePath = strings.TrimSuffix(trimmedFilePath, gitSuffix)
 
-	if !strings.HasPrefix(rowFilePath, hostPrefix) {
-		rowFilePath = hostPrefix + "/" + rowFilePath
+	if !strings.HasPrefix(trimmedFilePath, hostPrefix) {
+		trimmedFilePath = hostPrefix + "/" + trimmedFilePath
 	}
-	return rowFilePath
+	return trimmedFilePath
 }
 
 func execGhqGet(filePath string) {
