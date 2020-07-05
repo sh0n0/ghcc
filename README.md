@@ -1,6 +1,5 @@
 # ghcc
-A wrapper tool for using ghq and scc in combination.
-
+ghcc combines ghq (repository management tool) with scc (code counter).
 ## Install
 
 ```
