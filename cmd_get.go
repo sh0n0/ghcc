@@ -34,14 +34,21 @@ func getCodeAndCount(c *cli.Context) error {
 	filePath := trimFilePath(rawFilePath)
 	fullPath := getGhqRoot() + "/" + filePath
 
-	showSccResult(fullPath)
+	err = showSccResult(fullPath)
+	if err != nil {
+		return err
+	}
 
 	mainSummary := getSccSummaryForHistory(fullPath, filePath)
 	writeResultToHistory(mainSummary)
 
 	isTemporary := c.Bool("temporary")
 	if isTemporary {
-		os.RemoveAll(fullPath)
+		err = os.RemoveAll(fullPath)
+		if err != nil {
+			return err
+		}
+
 		fmt.Println("Finished removing " + fullPath)
 		return nil
 	}
@@ -53,7 +60,11 @@ interactive_loop:
 		stdin.Scan()
 		switch stdin.Text() {
 		case "y":
-			os.RemoveAll(fullPath)
+			err = os.RemoveAll(fullPath)
+			if err != nil {
+				return err
+			}
+
 			fmt.Println("Finished removing " + fullPath)
 			break interactive_loop
 		case "n":
@@ -65,14 +76,18 @@ interactive_loop:
 	return nil
 }
 
-func showSccResult(fullPath string) {
+func showSccResult(fullPath string) error {
 	sccArgs := []string{
 		"-s",
 		"lines",
 		fullPath,
 	}
-	sccOutput, _ := exec.Command("scc", sccArgs...).Output()
+	sccOutput, err := exec.Command("scc", sccArgs...).Output()
+	if err != nil {
+		return err
+	}
 	fmt.Println(string(sccOutput))
+	return nil
 }
 
 func trimFilePath(rawFilePath string) string {
