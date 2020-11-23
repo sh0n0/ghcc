@@ -26,7 +26,10 @@ func getCodeAndCount(c *cli.Context) error {
 
 	rawFilePath := c.Args().Get(0)
 
-	execGhqGet(rawFilePath)
+	err := execGhqGet(rawFilePath)
+	if err != nil {
+		return err
+	}
 
 	filePath := trimFilePath(rawFilePath)
 	fullPath := getGhqRoot() + "/" + filePath
@@ -82,14 +85,23 @@ func trimFilePath(rawFilePath string) string {
 	return trimmedFilePath
 }
 
-func execGhqGet(filePath string) {
+func execGhqGet(filePath string) error {
 	ghqArgs := []string{
 		"get",
 		filePath,
 	}
 	fmt.Println("Fetching code...")
-	ghqOut, _ := exec.Command("ghq", ghqArgs...).CombinedOutput()
-	fmt.Println(string(ghqOut))
+
+	cmd := exec.Command("ghq", ghqArgs...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	err := cmd.Run()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func getGhqRoot() string {
